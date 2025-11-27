@@ -1,0 +1,20 @@
+[project]
+name = "spectronaut-runner"
+version = "0.1.0"
+description = "A Python library to simplify and support the execution of Spectronaut when running in command-line mode."
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    { name = "David M. Hollenstein", email = "hollenstein.david@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=1.5.3",
+]
+
+[project.urls]
+homepage = "https://github.com/maxperutzlabs-ms/spectronaut-runner"
+
+[build-system]
+requires = ["uv_build>=0.9.2,<0.10.0"]
+build-backend = "uv_build"
