@@ -65,6 +65,10 @@ def sdrf_to_condition_setup(
         condition_field: Name of the SDRF column to use for the condition information.
         replicate_field: Name of the SDRF column to use for the replicate information.
             Must contain integer values.
+
+    Raises:
+        ValueError: If the specified condition or replicate fields are not found in
+            the SDRF file, or if the replicate field contains non-integer values.
     """
     logger.info(
         f"Converting SDRF file '{sdrf_filepath}' to Spectronaut condition setup file."
@@ -75,6 +79,23 @@ def sdrf_to_condition_setup(
         output_filepath = pathlib.Path(condition_filepath)
 
     sdrf_table = pd.read_csv(sdrf_filepath, sep="\t")
+    if condition_field not in sdrf_table.columns:
+        raise ValueError(
+            f"Condition field '{condition_field}' not found in SDRF columns: "
+            f"{list(sdrf_table.columns)}"
+        )
+    if replicate_field not in sdrf_table.columns:
+        raise ValueError(
+            f"Replicate field '{replicate_field}' not found in SDRF columns: "
+            f"{list(sdrf_table.columns)}"
+        )
+    try:
+        sdrf_table[replicate_field] = sdrf_table[replicate_field].astype("int")
+    except ValueError as e:
+        raise ValueError(
+            f"Replicate field '{replicate_field}' must contain integer values."
+        ) from e
+
     condition_setup = (
         pd.DataFrame(
             {
