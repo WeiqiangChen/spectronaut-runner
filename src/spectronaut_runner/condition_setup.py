@@ -42,6 +42,20 @@ def sdrf_to_condition_setup(
 ) -> None:
     """Convert an SDRF file to a Spectronaut-compatible condition setup file.
 
+    Creates a tab-separated file with the following columns:
+    - #: Index of the run.
+    - Reference: Set to "FALSE" for all runs.
+    - Run Label: Combination of Condition and Replicate, separated by an underscore.
+    - Condition: Extracted from the specified SDRF column.
+    - Fraction: Set to "NA" for all runs.
+    - Replicate: Extracted from the specified SDRF column.
+    - Quantity Correction Factor: Set to 1 for all runs.
+    - Label: Same as Condition. Used by Spectronaut for display purposes in plots.
+    - Color: Assigned from a predefined color palette based on the Condition. Used
+        by Spectronaut for visual distinction in plots.
+    - File Name: Extracted from the SDRF column "comment[data file]", with file
+        extensions removed.
+
     Args:
         sdrf_filepath: Path to the SDRF file.
         condition_filepath: Filepath to save the FragPipe manifest file. If None, saves
@@ -50,6 +64,7 @@ def sdrf_to_condition_setup(
             'condition_filepath' is None. Default is "ConditionSetup.tsv".
         condition_field: Name of the SDRF column to use for the condition information.
         replicate_field: Name of the SDRF column to use for the replicate information.
+            Must contain integer values.
     """
     logger.info(
         f"Converting SDRF file '{sdrf_filepath}' to Spectronaut condition setup file."
@@ -82,7 +97,7 @@ def sdrf_to_condition_setup(
     condition_setup["Color"] = _conditions_to_colors(
         condition_setup["Condition"], CONDITION_COLORS
     )
-    condition_setup["Label"] = condition_setup["Run Label"]
+    condition_setup["Label"] = condition_setup["Condition"]
     condition_setup["Reference"] = "FALSE"
     condition_setup["Fraction"] = "NA"
     condition_setup["Quantity Correction Factor"] = 1
