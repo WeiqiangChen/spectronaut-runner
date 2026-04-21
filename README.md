@@ -49,8 +49,6 @@ generate_search_archive(
     htrms_paths=[htrms_files[0]],
     search_settings_path = r"../data/settings/SN205_Pulsar_search_Settings.prop",
     skip_library_generation = True,  
-    search_archive_path = None,
-
 ) 
 ```
 #### 3-step.2/3: Build spectral library from htrms and search archives:
