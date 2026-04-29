@@ -16,9 +16,9 @@ def generate_search_archive(
     search_name: str,
     settings_path: pathlib.Path | str,
     fasta_paths: Iterable[pathlib.Path | str],
-    htrms_paths: Iterable[pathlib.Path | str],
     search_settings_path: pathlib.Path | str,
     skip_library_generation: bool = True,  
+    htrms_paths: Iterable[pathlib.Path | str]| None = None,
     search_archive_paths: Iterable[pathlib.Path | str] | None = None,
     library_path: pathlib.Path | str | None = None,
     extra_cmd_args: list[str] | None = None,
@@ -32,9 +32,9 @@ def generate_search_archive(
         search_name: Name of the Spectronaut search.
         settings_path: Path to the Spectronaut settings file.
         fasta_paths: Iterable of paths to the FASTA files to be used in the search.
-        htrms_paths: Iterable of paths to the .htrms files to be searched.
         search_settings_path: Path to the Spectronaut settings file for Pulsar search.
         skip_library_generation: Whether to skip the library generation step.
+        htrms_paths: Optional iterable of paths to the .htrms files to be searched. Default is None.
         search_archive_paths: Optional iterable of paths to the pre-existing search archive files. 
             If None, will not consider previous search archives.
         library_path: Optional path to the spectral library file to generate. 
@@ -135,7 +135,7 @@ def run_spectronaut(
     search_name: str,
     settings_path: pathlib.Path | str,
     fasta_paths: Iterable[pathlib.Path | str],
-    rawfile_paths: Iterable[pathlib.Path | str],
+    rawfile_paths: Iterable[pathlib.Path | str]| None = None,
     search_type: list[str] | None = None,
     condition_setup_path: pathlib.Path | str | None = None,
     report_schema_paths: Iterable[pathlib.Path | str] | None = None,
@@ -150,7 +150,8 @@ def run_spectronaut(
         search_name: Name of the Spectronaut search.
         settings_path: Path to the Spectronaut settings file.
         fasta_paths: Iterable of paths to the FASTA files to be used in the search.
-        rawfile_paths: Iterable of paths to the rawfiles to be searched.
+        rawfile_paths: Iterable of paths to the rawfiles to be searched. Can be None for 
+            library generation or search archive generation.
         search_type: Optional list of search types to run (e.g. ["-direct"] for directDIA+ search; 
             ["-lg", "-se", "Pulsar"] for library generation; or None for library-based DIA search). 
         condition_setup_path: Optional path to the Spectronaut condition setup file.
@@ -175,10 +176,12 @@ def run_spectronaut(
     if any(not fp.exists() for fp in _fasta_paths):
         logger.error("One or more FASTA files do not exist.")
         return False
-    _rawfile_paths = [pathlib.Path(p) for p in rawfile_paths]
-    if any(not rp.exists() for rp in _rawfile_paths):
-        logger.error("One or more rawfiles do not exist.")
-        return False
+
+    if rawfile_path is not None:
+        _rawfile_paths = [pathlib.Path(p) for p in rawfile_paths]
+        if any(not rp.exists() for rp in _rawfile_paths):
+            logger.error("One or more rawfiles do not exist.")
+
 
     cmd = [
         pathlib.Path(spectronaut_exec_path).as_posix(),]
@@ -196,8 +199,9 @@ def run_spectronaut(
 
     for fasta_path in _fasta_paths:
         cmd.extend(["-fasta", fasta_path.resolve().as_posix()])
-    for rawfile_path in _rawfile_paths:
-        cmd.extend(["-r", rawfile_path.resolve().as_posix()])
+    if rawfile_path is not None:    
+        for rawfile_path in _rawfile_paths:
+            cmd.extend(["-r", rawfile_path.resolve().as_posix()])
     if condition_setup_path is not None:
         cmd.extend(["-con", pathlib.Path(condition_setup_path).resolve().as_posix()])
     if report_schema_paths is not None:
