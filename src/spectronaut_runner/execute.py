@@ -20,7 +20,8 @@ def generate_search_archive(
     search_settings_path: pathlib.Path | str,
     skip_library_generation: bool = True,  
     search_archive_paths: Iterable[pathlib.Path | str] | None = None,
-    library_path: pathlib.Path | str | None = None
+    library_path: pathlib.Path | str | None = None,
+    extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """Generate search archive or search archive and spectral library 
     using Spectronaut in command line mode.
@@ -37,6 +38,7 @@ def generate_search_archive(
         search_archive_paths: Optional iterable of paths to the pre-existing search archive files. 
             If None, will not consider previous search archives.
         library_path: Optional path to the spectral library file to generate. 
+        extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
         True if the Spectronaut search completed successfully, False otherwise.
@@ -44,10 +46,13 @@ def generate_search_archive(
     Raises:
         FileNotFoundError: If the Spectronaut executable file is not found.
     """
-    extra_cmd_args = [
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+
+    extra_cmd_args.extend([
         "-rs",
         pathlib.Path(search_settings_path).resolve().as_posix(),
-    ]
+    ])
     if skip_library_generation:
         extra_cmd_args.append("--skip-library-generation") 
 
@@ -81,6 +86,7 @@ def dia_search(
     condition_setup_path: pathlib.Path | str,
     library_path: pathlib.Path | str,
     report_schema_paths: Iterable[pathlib.Path | str],
+    extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """DIA search using Spectronaut in command line mode.
 
@@ -94,6 +100,7 @@ def dia_search(
         condition_setup_path: Path to the Spectronaut condition setup file.
         library_path: Path to the spectral library file to use for the search.
         report_schema_paths: Iterable of paths to the report schema files.
+        extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
         True if the Spectronaut search completed successfully, False otherwise.
@@ -101,10 +108,13 @@ def dia_search(
     Raises:
         FileNotFoundError: If the Spectronaut executable file is not found.
     """
-    extra_cmd_args = [
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+
+    extra_cmd_args.extend([
         "-a",
         pathlib.Path(library_path).resolve().as_posix()
-    ]
+    ])
 
     return run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
