@@ -199,7 +199,7 @@ def run_spectronaut(
 
     for fasta_path in _fasta_paths:
         cmd.extend(["-fasta", fasta_path.resolve().as_posix()])
-    if rawfile_path is not None:    
+    if rawfile_paths is not None:    
         for rawfile_path in _rawfile_paths:
             cmd.extend(["-r", rawfile_path.resolve().as_posix()])
     if condition_setup_path is not None:

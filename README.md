@@ -22,7 +22,7 @@ convert_to_htrms(
 )
 ```
 
-### 3-step search using Spectronaut's command line interface:
+### 5-step search using Spectronaut's command line interface:
 #### 3-step.1/3: Build search archive from htrms (skip library generation):
 
 ```python
@@ -75,6 +75,7 @@ generate_search_archive(
 #### 3-step.3/3: DIA search from htrms and spectral library .kit:
 
 ```python
+from spectronaut_runner import dia_search
 search_name = "diaSearch_library_based"
 dia_search(
     spectronaut_exec_path = r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.exe",
