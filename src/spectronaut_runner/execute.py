@@ -177,7 +177,7 @@ def run_spectronaut(
         logger.error("One or more FASTA files do not exist.")
         return False
 
-    if rawfile_path is not None:
+    if rawfile_paths is not None:
         _rawfile_paths = [pathlib.Path(p) for p in rawfile_paths]
         if any(not rp.exists() for rp in _rawfile_paths):
             logger.error("One or more rawfiles do not exist.")
