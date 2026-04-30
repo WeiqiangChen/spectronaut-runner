@@ -18,13 +18,13 @@ def run_spectral_library_generation(
     fasta_paths: Iterable[pathlib.Path | str],
     search_settings_path: pathlib.Path | str,
     skip_library_generation: bool = True,  
-    htrms_paths: Iterable[pathlib.Path | str]| None = None,
+    htrms_paths: Iterable[pathlib.Path | str] | None = None,
     search_archive_paths: Iterable[pathlib.Path | str] | None = None,
     library_path: pathlib.Path | str | None = None,
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
-    """Generate search archive or search archive and spectral library 
-    using Spectronaut in command line mode.
+    """Generate search archive .psar, .qsp, .final.psar and spectral library .kit
+    using run_spectronaut() function.
 
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
@@ -48,6 +48,8 @@ def run_spectral_library_generation(
     """
     if extra_cmd_args is None:
         extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
 
     extra_cmd_args.extend([
         "-rs",
@@ -76,6 +78,7 @@ def run_spectral_library_generation(
         extra_cmd_args=extra_cmd_args,
         )
 
+
 def run_dia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
@@ -88,7 +91,7 @@ def run_dia_search(
     report_schema_paths: Iterable[pathlib.Path | str],
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
-    """DIA search using Spectronaut in command line mode.
+    """DIA library-based search using run_spectronaut() function.
 
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
@@ -98,7 +101,7 @@ def run_dia_search(
         fasta_paths: Iterable of paths to the FASTA files to be used in the search.
         htrms_paths: Iterable of paths to the .htrms files to be searched.
         condition_setup_path: Path to the Spectronaut condition setup file.
-        library_path: Path to the spectral library file to use for the search.
+        library_path: Path to the spectral library .kit file to use for the search.
         report_schema_paths: Iterable of paths to the report schema files.
         extra_cmd_args: Optional list of extra command line arguments.
 
@@ -110,6 +113,8 @@ def run_dia_search(
     """
     if extra_cmd_args is None:
         extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
 
     extra_cmd_args.extend([
         "-a",
@@ -128,6 +133,7 @@ def run_dia_search(
         extra_cmd_args=extra_cmd_args,
         )
 
+
 def run_directdia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
@@ -139,7 +145,7 @@ def run_directdia_search(
     report_schema_paths: Iterable[pathlib.Path | str],
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
-    """A run_spectronaut wrapper function to run directDIA+ search  .
+    """A run_spectronaut() wrapper function to run directDIA+ search.
 
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
@@ -172,13 +178,14 @@ def run_directdia_search(
         extra_cmd_args=extra_cmd_args,
         )
 
+
 def run_spectronaut(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
     search_name: str,
     settings_path: pathlib.Path | str,
     fasta_paths: Iterable[pathlib.Path | str],
-    rawfile_paths: Iterable[pathlib.Path | str]| None = None,
+    rawfile_paths: Iterable[pathlib.Path | str] | None = None,
     search_type: list[str] | None = None,
     condition_setup_path: pathlib.Path | str | None = None,
     report_schema_paths: Iterable[pathlib.Path | str] | None = None,
@@ -224,10 +231,9 @@ def run_spectronaut(
         _rawfile_paths = [pathlib.Path(p) for p in rawfile_paths]
         if any(not rp.exists() for rp in _rawfile_paths):
             logger.error("One or more rawfiles do not exist.")
+            return False
 
-
-    cmd = [
-        pathlib.Path(spectronaut_exec_path).as_posix(),]
+    cmd = [pathlib.Path(spectronaut_exec_path).as_posix()]
     if search_type is not None:
         cmd.extend(search_type)
 
@@ -296,13 +302,11 @@ def search_results_exist(output_dir: pathlib.Path | str) -> bool:
     if not output_dir.exists():
         return False
 
-    condition_setup_files = list(output_dir.glob("*ConditionSetup.tsv"))
-    sne_files = list(output_dir.glob("*.sne"))
-    psar_files = list(output_dir.glob("*.psar"))
-    if not (condition_setup_files or sne_files or psar_files):
-        return False
+    has_condition_setup = any(True for _ in output_dir.glob("*ConditionSetup.tsv"))
+    has_sne = any(True for _ in output_dir.glob("*.sne"))
+    has_psar = any(True for _ in output_dir.glob("*.psar"))
 
-    return True
+    return has_condition_setup or has_sne or has_psar
 
 
 def _identify_spectronaut_search_folder(
@@ -365,8 +369,7 @@ def _identify_spectronaut_search_folder(
         raise FileNotFoundError(
             f"No folder ending with '{search_name}' found in '{output_dir}'"
         )
-    latest_candidate_folder = sorted(candidate_folders)[-1]
-    return latest_candidate_folder
+    return max(candidate_folders)
 
 
 def _move_and_replace_folder_contents(
