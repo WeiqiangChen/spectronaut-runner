@@ -1,6 +1,6 @@
 [project]
 name = "spectronaut-runner"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Python library to simplify and support the execution of Spectronaut when running in command-line mode."
 readme = "README.md"
 license = "Apache-2.0"

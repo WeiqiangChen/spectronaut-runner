@@ -10,7 +10,7 @@ from typing import Iterable
 LOGGER = logging.getLogger(__name__)
 
 
-def generate_search_archive(
+def run_spectral_library_generation(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
     search_name: str,
@@ -76,7 +76,7 @@ def generate_search_archive(
         extra_cmd_args=extra_cmd_args,
         )
 
-def dia_search(
+def run_dia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
     search_name: str,
@@ -128,6 +128,49 @@ def dia_search(
         extra_cmd_args=extra_cmd_args,
         )
 
+def run_directdia_search(
+    spectronaut_exec_path: pathlib.Path | str,
+    output_dir: pathlib.Path | str,
+    search_name: str,
+    settings_path: pathlib.Path | str,
+    fasta_paths: Iterable[pathlib.Path | str],
+    htrms_paths: Iterable[pathlib.Path | str],
+    condition_setup_path: pathlib.Path | str, 
+    report_schema_paths: Iterable[pathlib.Path | str],
+    extra_cmd_args: list[str] | None = None,
+) -> bool:
+    """A run_spectronaut wrapper function to run directDIA+ search  .
+
+    Args:
+        spectronaut_exec_path: Path to the Spectronaut executable.
+        output_dir: Directory where the Spectronaut search results will be saved.
+        search_name: Name of the Spectronaut search.
+        settings_path: Path to the Spectronaut settings file.
+        fasta_paths: Iterable of paths to the FASTA files to be used in the search.
+        htrms_paths: Iterable of paths to the .htrms files to be searched.
+        condition_setup_path: Path to the Spectronaut condition setup file.
+        report_schema_paths: Iterable of paths to the report schema files.
+        extra_cmd_args: Optional list of extra command line arguments.
+
+    Returns:
+        True if the Spectronaut search completed successfully, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the Spectronaut executable file is not found.
+    """
+
+    return run_spectronaut(
+        spectronaut_exec_path=spectronaut_exec_path,
+        output_dir=output_dir,
+        search_name=search_name,
+        settings_path=settings_path,
+        fasta_paths=fasta_paths,
+        rawfile_paths=htrms_paths,
+        condition_setup_path=condition_setup_path,
+        report_schema_paths=report_schema_paths,
+        search_type=["-direct"],
+        extra_cmd_args=extra_cmd_args,
+        )
 
 def run_spectronaut(
     spectronaut_exec_path: pathlib.Path | str,
