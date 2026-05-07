@@ -233,7 +233,7 @@ def run_spectronaut(
             logger.error("One or more rawfiles do not exist.")
             return False
 
-    cmd = [pathlib.Path(spectronaut_exec_path).as_posix()]
+    cmd = ["dotnet", pathlib.Path(spectronaut_exec_path).as_posix()]
     if search_type is not None:
         cmd.extend(search_type)
 
