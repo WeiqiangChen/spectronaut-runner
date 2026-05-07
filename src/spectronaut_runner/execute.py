@@ -139,6 +139,7 @@ def run_sne_merge(
     output_dir: pathlib.Path | str,
     search_name: str,
     sne_paths: Iterable[pathlib.Path | str],
+    condition_setup_path: pathlib.Path | str,
     report_schema_paths: Iterable[pathlib.Path | str],
 ) -> bool:
     """Merge SNE files from the same spectral library into ONE SNE files using run_spectronaut() function, also generate reports.
@@ -168,7 +169,44 @@ def run_sne_merge(
         search_name=search_name,
         search_type=["manageSNE","--merge"],
         extra_cmd_args=extra_cmd_args,
+        condition_setup_path=condition_setup_path,
         report_schema_paths=report_schema_paths,
+        )
+
+def run_sne_combine(
+    spectronaut_exec_path: pathlib.Path | str,
+    output_dir: pathlib.Path | str,
+    search_name: str,
+    sne_paths: Iterable[pathlib.Path | str],
+    report_schema_paths: Iterable[pathlib.Path | str],
+) -> bool:
+    """Combine SNE files from the same spectral library to generate combined reports WITHOUT generating SNE.
+    Args:
+        spectronaut_exec_path: Path to the Spectronaut executable.
+        output_dir: Directory where the Spectronaut combine results will be saved.
+        search_name: Name of the Spectronaut search.
+        sne_paths: Iterable of paths to the SNE files to be used in the combine.
+        report_schema_paths: iterable of paths to the report schema files. 
+
+    Returns:
+        True if the Spectronaut completed successfully, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the Spectronaut executable file is not found.
+    """
+    print("\n--- Warning!!!   currently in Spectronaut 20.5 only long format report works, pivot table reports are NOT correct!!!.\n")
+
+    extra_cmd_args = []
+    for sne_path in sne_paths:
+        extra_cmd_args.extend(["-sne", pathlib.Path(sne_path).resolve().as_posix()]) 
+
+    return run_spectronaut(
+        spectronaut_exec_path=spectronaut_exec_path,
+        output_dir=output_dir,
+        search_name=search_name,
+        search_type=["combine"],
+        extra_cmd_args=extra_cmd_args,
+        report_schema_paths=report_schema_paths
         )
 
 def run_directdia_search(

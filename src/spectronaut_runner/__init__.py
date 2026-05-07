@@ -1,5 +1,5 @@
 from .condition_setup import get_rawfile_paths, sdrf_to_condition_setup
-from .execute import search_results_exist, run_spectral_library_generation, run_dia_search, run_sne_merge, run_directdia_search
+from .execute import search_results_exist, run_spectral_library_generation, run_dia_search, run_sne_merge, run_sne_combine, run_directdia_search
 from .htrms import convert_to_htrms
 
 __all__ = [
@@ -10,5 +10,6 @@ __all__ = [
     "run_spectral_library_generation",
     "run_dia_search",
     "run_sne_merge",
+    "run_sne_combine",
     "run_directdia_search",
 ]

@@ -133,6 +133,7 @@ run_sne_merge(
     output_dir= r"path/to/output",
     search_name= r"Step2.2_merging_SNE_files",
     sne_paths= [r"path/to/sne1", r"path/to/sne2"],
+    condition_setup_path=r"path/to/ConditionSetup.tsv",
     report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
 )
 ```
@@ -141,10 +142,14 @@ run_sne_merge(
 **IMPORTANT**: for large experiments (typically greater than 500 samples), merging them may exceed available memory and disk space (could be greater than a terabyte for each). In such a scenario, use the    combine command instead.
 
 ```python
-from spectronaut_runner import run_combine_sne_files
+from spectronaut_runner import run_sne_combine
 
-run_combine_sne_files(
-# to be implemented in execute.py
+run_sne_combine(
+    spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
+    output_dir= r"path/to/output",
+    search_name= r"Step2.3_combining_SNE_files",
+    sne_paths= [r"path/to/sne1", r"path/to/sne2"],
+    report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"], ### ONLY long format report for SN20.5!!! 
 )
 ```
 
