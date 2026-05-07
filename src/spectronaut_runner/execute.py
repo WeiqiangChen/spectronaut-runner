@@ -129,9 +129,11 @@ def run_dia_search(
         fasta_paths=fasta_paths,
         rawfile_paths=htrms_paths,
         condition_setup_path=condition_setup_path,
+        search_type=["diaanalysis"],
         report_schema_paths=report_schema_paths,
         extra_cmd_args=extra_cmd_args,
         )
+
 
 
 def run_directdia_search(
@@ -182,9 +184,9 @@ def run_directdia_search(
 def run_spectronaut(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
-    search_name: str,
-    settings_path: pathlib.Path | str,
-    fasta_paths: Iterable[pathlib.Path | str],
+    search_name: str | None = None,
+    settings_path: pathlib.Path | str | None = None,
+    fasta_paths: Iterable[pathlib.Path | str] | None = None,
     rawfile_paths: Iterable[pathlib.Path | str] | None = None,
     search_type: list[str] | None = None,
     condition_setup_path: pathlib.Path | str | None = None,
@@ -197,9 +199,9 @@ def run_spectronaut(
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut search results will be saved.
-        search_name: Name of the Spectronaut search.
-        settings_path: Path to the Spectronaut settings file.
-        fasta_paths: Iterable of paths to the FASTA files to be used in the search.
+        search_name: Name of the Spectronaut search. If None, will not be added to the command line.
+        settings_path: Path to the Spectronaut settings file. If None, will not be added to the command line.
+        fasta_paths: Iterable of paths to the FASTA files to be used in the search. If None, will not be added to the command line.
         rawfile_paths: Iterable of paths to the rawfiles to be searched. Can be None for 
             library generation or search archive generation.
         search_type: Optional list of search types to run (e.g. ["-direct"] for directDIA+ search; 
@@ -222,10 +224,11 @@ def run_spectronaut(
             f"Spectronaut executable file not found at {spectronaut_exec_path}. "
             "Please check the path."
         )
-    _fasta_paths = [pathlib.Path(p) for p in fasta_paths]
-    if any(not fp.exists() for fp in _fasta_paths):
-        logger.error("One or more FASTA files do not exist.")
-        return False
+    if fasta_paths is not None:
+        _fasta_paths = [pathlib.Path(p) for p in fasta_paths]
+        if any(not fp.exists() for fp in _fasta_paths):
+            logger.error("One or more FASTA files do not exist.")
+            return False
 
     if rawfile_paths is not None:
         _rawfile_paths = [pathlib.Path(p) for p in rawfile_paths]
@@ -237,11 +240,13 @@ def run_spectronaut(
     if search_type is not None:
         cmd.extend(search_type)
 
+    if search_name is not None:
+        cmd.extend(["-n", search_name])
+
+    if settings_path is not None:
+        cmd.extend(["-s", pathlib.Path(settings_path).resolve().as_posix()])
+
     cmd.extend([
-        "-s",
-        pathlib.Path(settings_path).resolve().as_posix(),
-        "-n",
-        search_name,
         "-o",
         pathlib.Path(output_dir).resolve().as_posix(),
     ])
