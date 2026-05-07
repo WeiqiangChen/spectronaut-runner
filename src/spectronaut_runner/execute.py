@@ -134,7 +134,42 @@ def run_dia_search(
         extra_cmd_args=extra_cmd_args,
         )
 
+def run_sne_merge(
+    spectronaut_exec_path: pathlib.Path | str,
+    output_dir: pathlib.Path | str,
+    search_name: str,
+    sne_paths: Iterable[pathlib.Path | str],
+    report_schema_paths: Iterable[pathlib.Path | str],
+) -> bool:
+    """Merge SNE files from the same spectral library into ONE SNE files using run_spectronaut() function, also generate reports.
+     Warning! For large experiments, it may exceed the available disk space and RAM.
+         Use the combine command instead to generate combined reports WITHOUT generating SNE.
+    Args:
+        spectronaut_exec_path: Path to the Spectronaut executable.
+        output_dir: Directory where the Spectronaut merge results will be saved.
+        search_name: Name of the Spectronaut search.
+        sne_paths: Iterable of paths to the SNE files to be used in the merge.
+        report_schema_paths: Iterable of paths to the report schema files.
 
+    Returns:
+        True if the Spectronaut completed successfully, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the Spectronaut executable file is not found.
+    """
+
+    extra_cmd_args = []
+    for sne_path in sne_paths:
+        extra_cmd_args.extend(["-sne", pathlib.Path(sne_path).resolve().as_posix()]) 
+
+    return run_spectronaut(
+        spectronaut_exec_path=spectronaut_exec_path,
+        output_dir=output_dir,
+        search_name=search_name,
+        search_type=["manageSNE","--merge"],
+        extra_cmd_args=extra_cmd_args,
+        report_schema_paths=report_schema_paths,
+        )
 
 def run_directdia_search(
     spectronaut_exec_path: pathlib.Path | str,
@@ -251,8 +286,9 @@ def run_spectronaut(
         pathlib.Path(output_dir).resolve().as_posix(),
     ])
 
-    for fasta_path in _fasta_paths:
-        cmd.extend(["-fasta", fasta_path.resolve().as_posix()])
+    if fasta_paths is not None:
+        for fasta_path in _fasta_paths:
+            cmd.extend(["-fasta", fasta_path.resolve().as_posix()])
     if rawfile_paths is not None:    
         for rawfile_path in _rawfile_paths:
             cmd.extend(["-r", rawfile_path.resolve().as_posix()])

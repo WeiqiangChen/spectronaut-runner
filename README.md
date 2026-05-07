@@ -126,10 +126,14 @@ run_dia_search(
 **IMPORTANT**: only SNE files from the same spectral library can be merged.
 
 ```python
-from spectronaut_runner import run_merge_sne_files
+from spectronaut_runner import run_sne_merge
 
-run_merge_sne_files(
-# to be implemented in execute.py
+run_sne_merge(
+    spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
+    output_dir= r"path/to/output",
+    search_name= r"Step2.2_merging_SNE_files",
+    sne_paths= [r"path/to/sne1", r"path/to/sne2"],
+    report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
 )
 ```
 ###### step 2.3 combining .sne files and generate reports (optional if step 2.1 was run in batch and generate multiple .sne files) 
