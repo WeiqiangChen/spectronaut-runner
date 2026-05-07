@@ -119,6 +119,7 @@ run_dia_search(
     condition_setup_path=r"path/to/ConditionSetup.tsv",
     library_path = r"path/to/output/Step1.4_generate_kit_SL_from_all_final_psar_files.kit",
     report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
+    extra_cmd_args=["--writeParquet"],
 )
 ```
 ###### step 2.2 merging .sne files and generate reports (optional if step 2.1 was run in batch and generate multiple .sne files) 
@@ -135,6 +136,7 @@ run_sne_merge(
     sne_paths= [r"path/to/sne1", r"path/to/sne2"],
     condition_setup_path=r"path/to/ConditionSetup.tsv",
     report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
+    extra_cmd_args=["--writeParquet"],
 )
 ```
 ###### step 2.3 combining .sne files and generate reports (optional if step 2.1 was run in batch and generate multiple .sne files) 
@@ -150,6 +152,7 @@ run_sne_combine(
     search_name= r"Step2.3_combining_SNE_files",
     sne_paths= [r"path/to/sne1", r"path/to/sne2"],
     report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"], ### ONLY long format report for SN20.5!!! 
+    extra_cmd_args=["--writeParquet"],
 )
 ```
 
@@ -168,5 +171,6 @@ run_directdia_search(
     htrms_paths= [r"path/to/htrms1", r"path/to/htrms2"],
     condition_setup_path=r"path/to/ConditionSetup.tsv",
     report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
+    extra_cmd_args=["--writeParquet"],
 )
 ```

@@ -2,7 +2,6 @@
 
 import logging
 import pathlib
-import shutil
 import subprocess
 import time
 from typing import Iterable
@@ -141,6 +140,7 @@ def run_sne_merge(
     sne_paths: Iterable[pathlib.Path | str],
     condition_setup_path: pathlib.Path | str,
     report_schema_paths: Iterable[pathlib.Path | str],
+    extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """Merge SNE files from the same spectral library into ONE SNE files using run_spectronaut() function, also generate reports.
      Warning! For large experiments, it may exceed the available disk space and RAM.
@@ -151,6 +151,7 @@ def run_sne_merge(
         search_name: Name of the Spectronaut search.
         sne_paths: Iterable of paths to the SNE files to be used in the merge.
         report_schema_paths: Iterable of paths to the report schema files.
+        extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
         True if the Spectronaut completed successfully, False otherwise.
@@ -159,7 +160,11 @@ def run_sne_merge(
         FileNotFoundError: If the Spectronaut executable file is not found.
     """
 
-    extra_cmd_args = []
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
+
     for sne_path in sne_paths:
         extra_cmd_args.extend(["-sne", pathlib.Path(sne_path).resolve().as_posix()]) 
 
@@ -179,6 +184,7 @@ def run_sne_combine(
     search_name: str,
     sne_paths: Iterable[pathlib.Path | str],
     report_schema_paths: Iterable[pathlib.Path | str],
+    extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """Combine SNE files from the same spectral library to generate combined reports WITHOUT generating SNE.
     Args:
@@ -187,6 +193,7 @@ def run_sne_combine(
         search_name: Name of the Spectronaut search.
         sne_paths: Iterable of paths to the SNE files to be used in the combine.
         report_schema_paths: iterable of paths to the report schema files. 
+        extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
         True if the Spectronaut completed successfully, False otherwise.
@@ -195,8 +202,12 @@ def run_sne_combine(
         FileNotFoundError: If the Spectronaut executable file is not found.
     """
     print("\n--- Warning!!!   currently in Spectronaut 20.5 only long format report works, pivot table reports are NOT correct!!!.\n")
+    
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
 
-    extra_cmd_args = []
     for sne_path in sne_paths:
         extra_cmd_args.extend(["-sne", pathlib.Path(sne_path).resolve().as_posix()]) 
 
