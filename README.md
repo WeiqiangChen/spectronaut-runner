@@ -29,77 +29,63 @@ convert_to_htrms(
 
 #### 5/6-step library-based DIA search for parralel/batch processing.
 
-###### step 1.1 : generate spectral library from each .htrms files. (parralel/batch processing is optional)
+###### step 1.1 : generate initial search archive from each .htrms files. (parralel/batch processing is optional)
 
 ```python
-from spectronaut_runner import run_spectral_library_generation
+from spectronaut_runner import create_initial_search_archive
 
-run_spectral_library_generation(
+create_initial_search_archive(
             spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
             output_dir="path/to/output",
-            search_name="Step1.1_generate_spectral_lib_from_each_htrms",
-            settings_path=r"../data/settings/SN205_Library_generation_Settings.prop", 
-            fasta_paths=[r"path/to/fasta1", r"path/to/fasta2"],
-            htrms_paths=[r"path/to/htrms1", r"path/to/htrms2"],
             search_settings_path = r"path/to/settings/SN205_Pulsar_search_Settings.prop",
-            skip_library_generation = True,
-            extra_cmd_args = ["--pulsarStage", "pulsarStep1"],
+            fastas=[r"path/to/fasta1", r"path/to/fasta2"],
+            rawfiles=[r"path/to/raw1", r"path/to/raw2"],
+            search_name="Step1.1_generate_initial_search_archive",
         ) 
 ```
 
-###### step 1.2 : generate .qsp files from all .psar files.
+###### step 1.2 : generate models (optimized .qsp files) from all initial search archives.
 
 ```python
-from spectronaut_runner import run_spectral_library_generation
+from spectronaut_runner import create_model_qsp
 
-run_spectral_library_generation(
-    spectronaut_exec_path = r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
-    output_dir = "path/to/output",
-    search_name = "Step1.2_generate_qsp_from_all_psar_files",
-    settings_path = r"../data/settings/SN205_Library_generation_Settings.prop", 
-    fasta_paths = [r"path/to/fasta1", r"path/to/fasta2"],
-    htrms_paths = None,
-    search_settings_path = r"../data/settings/SN205_Pulsar_search_Settings.prop",
-    search_archive_paths = [r"path/to/psar1", r"path/to/psar2"],
-    skip_library_generation = False,
-    extra_cmd_args = ["--pulsarStage", "pulsarStep2"],
+create_model_qsp(
+    spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
+    output_dir="path/to/output",
+    search_settings= r"path/to/settings/SN205_Pulsar_search_Settings.prop",
+    search_archives = [r"path/to/psar1", r"path/to/psar2"],
+    search_name="Step1.2_generate_model_qsp",
 ) 
 ```
 
-###### step 1.3 : generate final .psar files using all .htrms, .psar and .qsp files. (parralel/batch processing is optional)
+###### step 1.3 : generate final search archive from all .htrms, .psar and .qsp files. (parralel/batch processing is optional)
 
 ```python
-from spectronaut_runner import run_spectral_library_generation
+from spectronaut_runner import create_final_search_archive
 
-run_spectral_library_generation(
+create_final_search_archive(
     spectronaut_exec_path = r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
     output_dir = "path/to/output",
-    search_name = "Step1.3_generate_final_psar_files_using_all_htrms_psar_and_qsp_files",
-    settings_path = r"../data/settings/SN205_Library_generation_Settings.prop", 
-    fasta_paths = [r"path/to/fasta1", r"path/to/fasta2"],
-    htrms_paths = [r"path/to/htrms1", r"path/to/htrms2"],
-    search_settings_path = r"../data/settings/SN205_Pulsar_search_Settings.prop",
-    search_archive_paths = [r"path/to/psar1", r"path/to/psar2"],
-    skip_library_generation = True,
-    extra_cmd_args = ["--pulsarStage", "pulsarStep3", "--optimizedModels", r"path/to/qsp_file"],
+    rawfiles = [r"path/to/htrms1", r"path/to/htrms2"],
+    search_archives = [r"path/to/psar1", r"path/to/psar2"],
+    qsp_file = r"path/to/qsp_file",
+    search_settings = r"../data/settings/SN205_Library_generation_Settings.prop", 
+    search_name = "Step1.3_generate_final_search_archive",
 ) 
 ```
+
+
 ###### step 1.4 : generate .kit SL from all FINAL .psar files.
 
 ```python
-from spectronaut_runner import run_spectral_library_generation
+from spectronaut_runner import create_spectral_library
 
-run_spectral_library_generation(
+create_spectral_library(
     spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
     output_dir= r"path/to/output",
+    library_settings=r"../data/settings/SN205_Library_generation_Settings.prop", 
+    search_archives = [r"path/to/final_psar1", r"path/to/final_psar2"],
     search_name= r"Step1.4_generate_kit_SL_from_all_final_psar_files",
-    settings_path=r"../data/settings/SN205_Library_generation_Settings.prop", 
-    fasta_paths= [r"path/to/fasta1", r"path/to/fasta2"],
-    htrms_paths=None,
-    search_settings_path = r"../data/settings/SN205_Pulsar_search_Settings.prop",
-    skip_library_generation = False,  
-    search_archive_paths = [r"path/to/final_psar1", r"path/to/final_psar2"],
-    library_path = r"path/to/output/Step1.4_generate_kit_SL_from_all_final_psar_files.kit"
 )
 ```
 ###### step 2 : DIA analysis using the library 
@@ -107,19 +93,18 @@ run_spectral_library_generation(
 ###### step 2.1 : generate SNE for each batch of rawfiles or all rawfiles.
 
 ```python
-from spectronaut_runner import run_dia_search
+from spectronaut_runner import dia_search
 
-run_dia_search(
+dia_search(
     spectronaut_exec_path = r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
     output_dir = r"path/to/output",
+    settings = r"../data/settings/SN205_diaAnalysis_noNorm_noPost.prop", 
+    rawfiles = [r"path/to/htrms1", r"path/to/htrms2"],
+    condition_setup=r"path/to/ConditionSetup.tsv",
+    library = r"path/to/output/Step1.4_generate_kit_SL_from_all_final_psar_files.kit",
+    report_schemas=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
+    write_parquet= True,
     search_name = r"Step2_dia_analysis_using_the_library",
-    settings_path = r"../data/settings/SN205_diaAnalysis_noNorm_noPost.prop", 
-    fasta_paths = [r"path/to/fasta1", r"path/to/fasta2"],
-    htrms_paths = [r"path/to/htrms1", r"path/to/htrms2"],
-    condition_setup_path=r"path/to/ConditionSetup.tsv",
-    library_path = r"path/to/output/Step1.4_generate_kit_SL_from_all_final_psar_files.kit",
-    report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
-    extra_cmd_args=["--writeParquet"],
 )
 ```
 ###### step 2.2 merging .sne files and generate reports (optional if step 2.1 was run in batch and generate multiple .sne files) 
@@ -127,16 +112,16 @@ run_dia_search(
 **IMPORTANT**: only SNE files from the same spectral library can be merged.
 
 ```python
-from spectronaut_runner import run_sne_merge
+from spectronaut_runner import sne_merge
 
-run_sne_merge(
+sne_merge(
     spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
     output_dir= r"path/to/output",
+    snes= [r"path/to/sne1", r"path/to/sne2"],
+    condition_setup=r"path/to/ConditionSetup.tsv",
+    report_schemas=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
+    write_parquet= True,
     search_name= r"Step2.2_merging_SNE_files",
-    sne_paths= [r"path/to/sne1", r"path/to/sne2"],
-    condition_setup_path=r"path/to/ConditionSetup.tsv",
-    report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
-    extra_cmd_args=["--writeParquet"],
 )
 ```
 ###### step 2.3 combining .sne files and generate reports (optional if step 2.1 was run in batch and generate multiple .sne files) 
@@ -144,15 +129,15 @@ run_sne_merge(
 **IMPORTANT**: for large experiments (typically greater than 500 samples), merging them may exceed available memory and disk space (could be greater than a terabyte for each). In such a scenario, use the    combine command instead.
 
 ```python
-from spectronaut_runner import run_sne_combine
+from spectronaut_runner import sne_combine
 
-run_sne_combine(
+sne_combine(
     spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
     output_dir= r"path/to/output",
+    snes= [r"path/to/sne1", r"path/to/sne2"],
+    report_schemas=[r"path/to/report_scheme1", r"path/to/report_scheme2"], ### ONLY long format report for SN20.5!!! 
+    write_parquet= True,
     search_name= r"Step2.3_combining_SNE_files",
-    sne_paths= [r"path/to/sne1", r"path/to/sne2"],
-    report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"], ### ONLY long format report for SN20.5!!! 
-    extra_cmd_args=["--writeParquet"],
 )
 ```
 
@@ -160,17 +145,17 @@ run_sne_combine(
 #### 1-step directDIA+ search.
 
 ```python
-from spectronaut_runner import run_directdia_search
+from spectronaut_runner import directdia_search
 
-run_directdia_search(
+directdia_search(
     spectronaut_exec_path= r"C:\Program Files (x86)\Biognosys\Spectronaut205\bin\Spectronaut.dll",
     output_dir= r"path/to/output",
+    settings=r"../data/settings/SN205_directDIA+_noNorm_noPost.prop",
+    fasta= [r"path/to/fasta1", r"path/to/fasta2"],
+    rawfiles= [r"path/to/raw1", r"path/to/raw2"],
+    condition_setup=r"path/to/ConditionSetup.tsv",
+    report_schemas=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
+    write_parquet= True,
     search_name= r"1_step_directDIA_plus_search",
-    settings_path=r"../data/settings/SN205_diaAnalysis_noNorm_noPost.prop",
-    fasta_paths= [r"path/to/fasta1", r"path/to/fasta2"],
-    htrms_paths= [r"path/to/htrms1", r"path/to/htrms2"],
-    condition_setup_path=r"path/to/ConditionSetup.tsv",
-    report_schema_paths=[r"path/to/report_scheme1", r"path/to/report_scheme2"],
-    extra_cmd_args=["--writeParquet"],
 )
 ```

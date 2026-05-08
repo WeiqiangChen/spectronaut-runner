@@ -192,7 +192,7 @@ def dia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
     settings: pathlib.Path | str,
-    fasta: Iterable[pathlib.Path | str],
+    fastas: Iterable[pathlib.Path | str],
     rawfiles: Iterable[pathlib.Path | str],
     condition_setup: pathlib.Path | str,
     library: pathlib.Path | str,
@@ -207,7 +207,7 @@ def dia_search(
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut search results will be saved.
         settings: Path to the Spectronaut settings file.
-        fasta: Iterable of paths to the FASTA files to be used in the search.
+        fastas: Iterable of paths to the FASTA files to be used in the search.
         rawfiles: Iterable of paths to the raw files to be searched.
         condition_setup: Path to the Spectronaut condition setup file.
         library: Path to the spectral library .kit file to use for the search.
@@ -242,7 +242,7 @@ def dia_search(
         output_dir=output_dir,
         search_name=search_name,
         settings_path=settings,
-        fasta_paths=fasta,
+        fasta_paths=fastas,
         rawfile_paths=rawfiles,
         condition_setup_path=condition_setup,
         search_type=["diaanalysis"],
@@ -356,7 +356,7 @@ def directdia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
     settings: pathlib.Path | str,
-    fasta: Iterable[pathlib.Path | str],
+    fastas: Iterable[pathlib.Path | str],
     rawfiles: Iterable[pathlib.Path | str],
     condition_setup: pathlib.Path | str, 
     report_schemas: Iterable[pathlib.Path | str],
@@ -397,7 +397,7 @@ def directdia_search(
         output_dir=output_dir,
         search_name=search_name,
         settings_path=settings,
-        fasta_paths=fasta,
+        fasta_paths=fastas,  
         rawfile_paths=rawfiles,
         condition_setup_path=condition_setup,
         report_schema_paths=report_schemas,
