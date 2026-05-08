@@ -10,34 +10,25 @@ from typing import Iterable
 LOGGER = logging.getLogger(__name__)
 
 
-def run_spectral_library_generation(
+
+
+
+def create_spectral_library(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
-    search_name: str,
-    settings_path: pathlib.Path | str,
-    fasta_paths: Iterable[pathlib.Path | str],
-    search_settings_path: pathlib.Path | str,
-    skip_library_generation: bool = True,  
-    htrms_paths: Iterable[pathlib.Path | str] | None = None,
-    search_archive_paths: Iterable[pathlib.Path | str] | None = None,
-    library_path: pathlib.Path | str | None = None,
+    library_settings: pathlib.Path | str,
+    search_archives: Iterable[pathlib.Path | str],
+    search_name: str=None,
     extra_cmd_args: list[str] | None = None,
-) -> bool:
-    """Generate search archive .psar, .qsp, .final.psar and spectral library .kit
-    using run_spectronaut() function.
+) -> bool:  
+    """Generate spectral library from final search archive .psar using run_spectronaut() function.
 
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut search results will be saved.
-        search_name: Name of the Spectronaut search.
-        settings_path: Path to the Spectronaut settings file.
-        fasta_paths: Iterable of paths to the FASTA files to be used in the search.
-        search_settings_path: Path to the Spectronaut settings file for Pulsar search.
-        skip_library_generation: Whether to skip the library generation step.
-        htrms_paths: Optional iterable of paths to the .htrms files to be searched. Default is None.
-        search_archive_paths: Optional iterable of paths to the pre-existing search archive files. 
-            If None, will not consider previous search archives.
-        library_path: Optional path to the spectral library file to generate. 
+        library_settings: Path to the Spectronaut library generation settings file. 
+        search_archives: Iterable of paths to the pre-existing search archive files. 
+        search_name: Optional name for the spectral library.
         extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
@@ -51,30 +42,16 @@ def run_spectral_library_generation(
     else:
         extra_cmd_args = list(extra_cmd_args)
 
-    extra_cmd_args.extend([
-        "-rs",
-        pathlib.Path(search_settings_path).resolve().as_posix(),
-    ])
-    if skip_library_generation:
-        extra_cmd_args.append("--skip-library-generation") 
-
-    if search_archive_paths is not None:
-        for search_archive_path in search_archive_paths:
-            extra_cmd_args.extend(["-sa", pathlib.Path(search_archive_path).resolve().as_posix()]) 
+    for search_archive_path in search_archives:
+        extra_cmd_args.extend(["-sa", pathlib.Path(search_archive_path).resolve().as_posix()]) 
     
-    if library_path is not None:
-        extra_cmd_args.extend(["-k", pathlib.Path(library_path).resolve().as_posix()]) 
-
+    extra_cmd_args.extend(["--noOutputSubfolder"])
     return run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
         output_dir=output_dir,
-        search_name=search_name,
-        settings_path=settings_path,
-        fasta_paths=fasta_paths,
-        rawfile_paths=htrms_paths,
-        condition_setup_path=None,
-        report_schema_paths=None,
+        settings_path=library_settings,
         search_type=["-lg", "-se", "Pulsar"],
+        search_name=search_name,
         extra_cmd_args=extra_cmd_args,
         )
 
