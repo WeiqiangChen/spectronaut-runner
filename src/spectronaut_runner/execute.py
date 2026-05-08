@@ -134,13 +134,14 @@ def run_dia_search(
         extra_cmd_args=extra_cmd_args,
         )
 
-def run_sne_merge(
+def sne_merge(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
-    search_name: str,
-    sne_paths: Iterable[pathlib.Path | str],
-    condition_setup_path: pathlib.Path | str,
-    report_schema_paths: Iterable[pathlib.Path | str],
+    snes: Iterable[pathlib.Path | str],
+    condition_setup: pathlib.Path | str,
+    report_schemas: Iterable[pathlib.Path | str],
+    write_parquet: bool=False,  
+    search_name: str| None =None,
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """Merge SNE files from the same spectral library into ONE SNE files using run_spectronaut() function, also generate reports.
@@ -149,9 +150,11 @@ def run_sne_merge(
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut merge results will be saved.
-        search_name: Name of the Spectronaut search.
-        sne_paths: Iterable of paths to the SNE files to be used in the merge.
-        report_schema_paths: Iterable of paths to the report schema files.
+        snes: Iterable of paths to the SNE files to be used in the merge.
+        condition_setup: Path to the Spectronaut condition setup file.
+        report_schemas: Iterable of paths to the report schema files.
+        write_parquet: Whether to write the reports in parquet format. (default: False)
+        search_name: Optional name of the Spectronaut search.
         extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
@@ -166,17 +169,22 @@ def run_sne_merge(
     else:
         extra_cmd_args = list(extra_cmd_args)
 
-    for sne_path in sne_paths:
+    for sne_path in snes:
         extra_cmd_args.extend(["-sne", pathlib.Path(sne_path).resolve().as_posix()]) 
 
+    if write_parquet:
+        extra_cmd_args.extend(["--writeParquet"])
+        
+    extra_cmd_args.extend(["--noOutputSubfolder"])
+    
     return run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
         output_dir=output_dir,
-        search_name=search_name,
         search_type=["manageSNE","--merge"],
         extra_cmd_args=extra_cmd_args,
-        condition_setup_path=condition_setup_path,
-        report_schema_paths=report_schema_paths,
+        condition_setup_path=condition_setup,
+        report_schema_paths=report_schemas,
+        search_name=search_name,
         )
 
 def sne_combine(
