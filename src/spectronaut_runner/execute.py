@@ -1,6 +1,5 @@
 """Module for executing Spectronaut in command line mode."""
 
-from _typeshed import importlib
 import logging
 import pathlib
 import subprocess
@@ -221,15 +220,16 @@ def run_sne_combine(
         report_schema_paths=report_schema_paths
         )
 
-def run_directdia_search(
+def directdia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
-    search_name: str,
-    settings_path: pathlib.Path | str,
-    fasta_paths: Iterable[pathlib.Path | str],
-    htrms_paths: Iterable[pathlib.Path | str],
-    condition_setup_path: pathlib.Path | str, 
-    report_schema_paths: Iterable[pathlib.Path | str],
+    settings: pathlib.Path | str,
+    fasta: Iterable[pathlib.Path | str],
+    rawfiles: Iterable[pathlib.Path | str],
+    condition_setup: pathlib.Path | str, 
+    report_schemas: Iterable[pathlib.Path | str],
+    writeParquet: bool = False,
+    search_name: str | None = None,
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """A run_spectronaut() wrapper function to run directDIA+ search.
@@ -237,12 +237,13 @@ def run_directdia_search(
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut search results will be saved.
-        search_name: Name of the Spectronaut search.
-        settings_path: Path to the Spectronaut settings file.
-        fasta_paths: Iterable of paths to the FASTA files to be used in the search.
-        htrms_paths: Iterable of paths to the .htrms files to be searched.
-        condition_setup_path: Path to the Spectronaut condition setup file.
-        report_schema_paths: Iterable of paths to the report schema files.
+        settings: Path to the Spectronaut settings file.
+        fasta: Iterable of paths to the FASTA files to be used in the search.
+        rawfiles: Iterable of paths to the raw files to be searched.
+        condition_setup: Path to the Spectronaut condition setup file.
+        report_schemas: Iterable of paths to the report schema files.
+        writeParquet: Whether to write the search results to a Parquet file.
+        search_name: Optional name of the Spectronaut search.
         extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
@@ -251,16 +252,23 @@ def run_directdia_search(
     Raises:
         FileNotFoundError: If the Spectronaut executable file is not found.
     """
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
+        
+    if writeParquet:
+        extra_cmd_args.extend(["--writeParquet"])
 
     success = run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
         output_dir=output_dir,
         search_name=search_name,
-        settings_path=settings_path,
-        fasta_paths=fasta_paths,
-        rawfile_paths=htrms_paths,
-        condition_setup_path=condition_setup_path,
-        report_schema_paths=report_schema_paths,
+        settings_path=settings,
+        fasta_paths=fasta,
+        rawfile_paths=rawfiles,
+        condition_setup_path=condition_setup,
+        report_schema_paths=report_schemas,
         search_type=["-direct"],
         extra_cmd_args=extra_cmd_args,
         )
