@@ -179,21 +179,23 @@ def run_sne_merge(
         report_schema_paths=report_schema_paths,
         )
 
-def run_sne_combine(
+def sne_combine(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
-    search_name: str,
-    sne_paths: Iterable[pathlib.Path | str],
-    report_schema_paths: Iterable[pathlib.Path | str],
+    snes: Iterable[pathlib.Path | str],
+    report_schemas: Iterable[pathlib.Path | str],
+    write_parquet: bool=False,
+    search_name: str| None =None,
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """Combine SNE files from the same spectral library to generate combined reports WITHOUT generating SNE.
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut combine results will be saved.
+        snes: Iterable of paths to the SNE files to be used in the combine.
+        report_schemas: iterable of paths to the report schema files. 
+        write_parquet: Whether to write the reports in parquet format. (default: False)
         search_name: Name of the Spectronaut search.
-        sne_paths: Iterable of paths to the SNE files to be used in the combine.
-        report_schema_paths: iterable of paths to the report schema files. 
         extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
@@ -209,16 +211,21 @@ def run_sne_combine(
     else:
         extra_cmd_args = list(extra_cmd_args)
 
-    for sne_path in sne_paths:
-        extra_cmd_args.extend(["-sne", pathlib.Path(sne_path).resolve().as_posix()]) 
+    for sne in snes:
+        extra_cmd_args.extend(["-sne", pathlib.Path(sne).resolve().as_posix()]) 
+
+    extra_cmd_args.extend(["--noOutputSubfolder"])
+
+    if write_parquet:
+        extra_cmd_args.extend(["--writeParquet"])
 
     return run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
         output_dir=output_dir,
         search_name=search_name,
         search_type=["combine"],
+        report_schema_paths=report_schemas,
         extra_cmd_args=extra_cmd_args,
-        report_schema_paths=report_schema_paths
         )
 
 def directdia_search(
@@ -229,7 +236,7 @@ def directdia_search(
     rawfiles: Iterable[pathlib.Path | str],
     condition_setup: pathlib.Path | str, 
     report_schemas: Iterable[pathlib.Path | str],
-    writeParquet: bool = False,
+    write_parquet: bool = False,
     search_name: str | None = None,
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
@@ -243,7 +250,7 @@ def directdia_search(
         rawfiles: Iterable of paths to the raw files to be searched.
         condition_setup: Path to the Spectronaut condition setup file.
         report_schemas: Iterable of paths to the report schema files.
-        writeParquet: Whether to write the search results to a Parquet file.
+        write_parquet: Whether to write the search results to a Parquet file.
         search_name: Optional name of the Spectronaut search.
         extra_cmd_args: Optional list of extra command line arguments.
 
@@ -258,7 +265,7 @@ def directdia_search(
     else:
         extra_cmd_args = list(extra_cmd_args)
         
-    if writeParquet:
+    if write_parquet:
         extra_cmd_args.extend(["--writeParquet"])
 
     success = run_spectronaut(
