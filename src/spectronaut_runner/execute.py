@@ -79,16 +79,17 @@ def run_spectral_library_generation(
         )
 
 
-def run_dia_search(
+def dia_search(
     spectronaut_exec_path: pathlib.Path | str,
     output_dir: pathlib.Path | str,
-    search_name: str,
-    settings_path: pathlib.Path | str,
-    fasta_paths: Iterable[pathlib.Path | str],
-    htrms_paths: Iterable[pathlib.Path | str],
-    condition_setup_path: pathlib.Path | str,
-    library_path: pathlib.Path | str,
-    report_schema_paths: Iterable[pathlib.Path | str],
+    settings: pathlib.Path | str,
+    fasta: Iterable[pathlib.Path | str],
+    rawfiles: Iterable[pathlib.Path | str],
+    condition_setup: pathlib.Path | str,
+    library: pathlib.Path | str,
+    report_schemas: Iterable[pathlib.Path | str],
+    search_name: str | None = None,
+    write_parquet: bool=False,  
     extra_cmd_args: list[str] | None = None,
 ) -> bool:
     """DIA library-based search using run_spectronaut() function.
@@ -96,13 +97,14 @@ def run_dia_search(
     Args:
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut search results will be saved.
-        search_name: Name of the Spectronaut search.
-        settings_path: Path to the Spectronaut settings file.
-        fasta_paths: Iterable of paths to the FASTA files to be used in the search.
-        htrms_paths: Iterable of paths to the .htrms files to be searched.
-        condition_setup_path: Path to the Spectronaut condition setup file.
-        library_path: Path to the spectral library .kit file to use for the search.
-        report_schema_paths: Iterable of paths to the report schema files.
+        settings: Path to the Spectronaut settings file.
+        fasta: Iterable of paths to the FASTA files to be used in the search.
+        rawfiles: Iterable of paths to the raw files to be searched.
+        condition_setup: Path to the Spectronaut condition setup file.
+        library: Path to the spectral library .kit file to use for the search.
+        report_schemas: Iterable of paths to the report schema files.
+        search_name: Optional name of the Spectronaut search.
+        write_parquet: Whether to write the search results to a Parquet file. (default: False)
         extra_cmd_args: Optional list of extra command line arguments.
 
     Returns:
@@ -118,19 +120,24 @@ def run_dia_search(
 
     extra_cmd_args.extend([
         "-a",
-        pathlib.Path(library_path).resolve().as_posix()
+        pathlib.Path(library).resolve().as_posix()
     ])
+    
+    if write_parquet:
+        extra_cmd_args.append("--writeParquet")
+        
+    extra_cmd_args.extend(["--noOutputSubfolder"])
 
     return run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
         output_dir=output_dir,
         search_name=search_name,
-        settings_path=settings_path,
-        fasta_paths=fasta_paths,
-        rawfile_paths=htrms_paths,
-        condition_setup_path=condition_setup_path,
+        settings_path=settings,
+        fasta_paths=fasta,
+        rawfile_paths=rawfiles,
+        condition_setup_path=condition_setup,
         search_type=["diaanalysis"],
-        report_schema_paths=report_schema_paths,
+        report_schema_paths=report_schemas,
         extra_cmd_args=extra_cmd_args,
         )
 
