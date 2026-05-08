@@ -97,7 +97,53 @@ def create_model_qsp(
         extra_cmd_args=extra_cmd_args,
         )
 
+def create_final_search_archive(
+    spectronaut_exec_path: pathlib.Path | str,
+    output_dir: pathlib.Path | str,
+    rawfiles: Iterable[pathlib.Path | str],
+    search_archives: Iterable[pathlib.Path | str],
+    qsp_file: str, 
+    search_settings: pathlib.Path | str,
+    search_name: str=None,
+    extra_cmd_args: list[str] | None = None,
+) -> bool:  
+    """Generate initial search archive .psar from raw files using run_spectronaut() function.
 
+    Args:
+        spectronaut_exec_path: Path to the Spectronaut executable.
+        output_dir: Directory where the Spectronaut search results will be saved.
+        rawfiles: Iterable of paths to the raw files to be searched.
+        search_archives: Iterable of paths to the pre-existing search archive files. 
+        qsp_file: Path to the optimized models (qsp) file.
+        search_settings: Path to the Pulsar search settings file. 
+        search_name: Optional name for the results.
+        extra_cmd_args: Optional list of extra command line arguments.
+
+    Returns:
+        True if the Spectronaut search completed successfully, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the Spectronaut executable file is not found.
+    """
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
+
+    for search_archive in search_archives:
+        extra_cmd_args.extend(["-sa", pathlib.Path(search_archive).resolve().as_posix()]) 
+
+    extra_cmd_args.extend(["--noOutputSubfolder", "--skip-library-generation", "--pulsarStage", "pulsarStep3", "--optimizedModels", qsp_file])
+
+    return run_spectronaut(
+        spectronaut_exec_path=spectronaut_exec_path,
+        output_dir=output_dir,
+        settings_path=search_settings,
+        rawfile_paths=rawfiles,
+        search_type=["-lg", "-se", "Pulsar"],
+        search_name=search_name,
+        extra_cmd_args=extra_cmd_args,
+        )
 
 def create_spectral_library(
     spectronaut_exec_path: pathlib.Path | str,
@@ -113,7 +159,7 @@ def create_spectral_library(
         spectronaut_exec_path: Path to the Spectronaut executable.
         output_dir: Directory where the Spectronaut search results will be saved.
         library_settings: Path to the Spectronaut library generation settings file. 
-        search_archives: Iterable of paths to the pre-existing search archive files. 
+        search_archives: Iterable of paths to the FINAL search archive files. 
         search_name: Optional name for the spectral library.
         extra_cmd_args: Optional list of extra command line arguments.
 
