@@ -9,7 +9,49 @@ from typing import Iterable
 
 LOGGER = logging.getLogger(__name__)
 
+def create_initial_search_archive(
+    spectronaut_exec_path: pathlib.Path | str,
+    output_dir: pathlib.Path | str,
+    search_settings: pathlib.Path | str,
+    fastas: Iterable[pathlib.Path | str],
+    rawfiles: Iterable[pathlib.Path | str],
+    search_name: str=None,
+    extra_cmd_args: list[str] | None = None,
+) -> bool:  
+    """Generate initial search archive .psar from raw files using run_spectronaut() function.
 
+    Args:
+        spectronaut_exec_path: Path to the Spectronaut executable.
+        output_dir: Directory where the Spectronaut search results will be saved.
+        search_settings: Path to the Pulsar search settings file. 
+        fastas: Iterable of paths to the fasta files to be used in the search. 
+        rawfiles: Iterable of paths to the raw files to be searched. 
+        search_name: Optional name for the spectral library.
+        extra_cmd_args: Optional list of extra command line arguments.
+
+    Returns:
+        True if the Spectronaut search completed successfully, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the Spectronaut executable file is not found.
+    """
+    if extra_cmd_args is None:
+        extra_cmd_args = []
+    else:
+        extra_cmd_args = list(extra_cmd_args)
+
+    extra_cmd_args.extend(["--noOutputSubfolder", "--skip-library-generation", "--pulsarStage", "pulsarStep1"])
+
+    return run_spectronaut(
+        spectronaut_exec_path=spectronaut_exec_path,
+        output_dir=output_dir,
+        settings_path=search_settings,
+        fasta_paths=fastas,
+        rawfile_paths=rawfiles,
+        search_type=["-lg", "-se", "Pulsar"],
+        search_name=search_name,
+        extra_cmd_args=extra_cmd_args,
+        )
 
 
 
