@@ -3,6 +3,7 @@
 import logging
 import pathlib
 import subprocess
+import shutil
 import time
 from typing import Iterable
 
@@ -335,8 +336,6 @@ def run_spectronaut(
     cmd = ["dotnet", pathlib.Path(spectronaut_exec_path).as_posix()]
     if search_type is not None:
         cmd.extend(search_type)
-
-    cmd.extend(["--noOutputSubfolder"]) # this line is added to avoid the nested output folder structure on SN20.5
     
     if search_name is not None:
         cmd.extend(["-n", search_name])
