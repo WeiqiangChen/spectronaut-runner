@@ -272,7 +272,15 @@ def directdia_search(
         search_type=["-direct"],
         extra_cmd_args=extra_cmd_args,
         )
-        
+
+    # identify the search sub-folder and move the contents to the output directory 
+    if search_name is None:
+        search_name = "Experiment1"
+
+    if success:
+        search_folder_path = _identify_spectronaut_search_folder(search_name, output_dir)
+        _move_and_replace_folder_contents(search_folder_path, output_dir)
+
     return success
 
 
