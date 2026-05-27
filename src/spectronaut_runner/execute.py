@@ -392,6 +392,8 @@ def directdia_search(
     if write_parquet:
         extra_cmd_args.extend(["--writeParquet"])
 
+    extra_cmd_args.extend(["--noOutputSubfolder"])
+    
     success = run_spectronaut(
         spectronaut_exec_path=spectronaut_exec_path,
         output_dir=output_dir,
@@ -410,8 +412,9 @@ def directdia_search(
         search_name = "Experiment1"
 
     if success:
-        search_folder_path = _identify_spectronaut_search_folder(search_name, output_dir)
-        _move_and_replace_folder_contents(search_folder_path, output_dir)
+        if not any(p.stat().st_size > 100 * 1024 * 1024 for p in pathlib.Path(output_dir).glob("*.sne")):
+            search_folder_path = _identify_spectronaut_search_folder(search_name, output_dir)
+            _move_and_replace_folder_contents(search_folder_path, output_dir)
 
     return success
 
