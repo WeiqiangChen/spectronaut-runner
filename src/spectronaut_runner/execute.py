@@ -1,9 +1,11 @@
 """Module for executing Spectronaut in command line mode."""
 
 import logging
+import os
 import pathlib
 import subprocess
 import shutil
+import tempfile
 import time
 from typing import Iterable
 
@@ -502,21 +504,53 @@ def run_spectronaut(
         for schema_path in report_schema_paths:
             cmd.extend(["-rs", pathlib.Path(schema_path).resolve().as_posix()])
     if extra_cmd_args is not None:
-        cmd.extend(extra_cmd_args)  
+        cmd.extend(extra_cmd_args)
+
     logger.info(f"Running Spectronaut with output directory '{output_dir}'")
     logger.debug(f"Spectronaut command: {' '.join(cmd)}")
 
+    command_text = subprocess.list2cmdline(cmd)
+    use_command_file = len(command_text) > 8000 or any(len(str(arg)) > 260 for arg in cmd)
 
     try:
         start_time = time.time()
-        result = subprocess.run(
-            cmd,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            shell=False,
-        )
+        if use_command_file:
+            logger.info("Command is long, running Spectronaut via temporary arguments file.")
+            spectronaut_dll = cmd[1]
+            command_args = cmd[2:]
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8', newline='\n') as tmp_file:
+                for arg in command_args:
+                    tmp_file.write(subprocess.list2cmdline([str(arg)]))
+                    tmp_file.write('\n')
+                command_file_path = pathlib.Path(tmp_file.name).resolve()
+
+            try:
+                dotnet_cmd = ["dotnet", spectronaut_dll, "-command", str(command_file_path)]
+                logger.debug(f"Spectronaut command file: {command_file_path}")
+                logger.debug(f"dotnet command: {' '.join(dotnet_cmd)}")
+                result = subprocess.run(
+                    dotnet_cmd,
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    shell=False,
+                )
+            finally:
+                try:
+                    command_file_path.unlink()
+                except OSError:
+                    logger.warning(f"Failed to delete temporary command file {command_file_path}")
+        else:
+            result = subprocess.run(
+                cmd,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                shell=False,
+            )
+
         duration = (time.time() - start_time) / 60
         logger.info(f"Spectronaut completed successfully in {duration:.2f} minutes.")
 
