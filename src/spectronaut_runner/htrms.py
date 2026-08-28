@@ -46,6 +46,7 @@ def convert_to_htrms(
         "spectronaut",
         "spectronaut.exe",
         "spectronaut.dll",
+        "SpectronautCMD.dll",
         "htrmsconverter.exe",
         "htrmsconverter.dll",
     ]
